@@ -4,7 +4,7 @@ var colors = require('colors');
 
 
 const credFileName = "creds.json";
-const classeFileName = "classes.json";
+
 const classRootUrl = "https://autodeskuniversity.smarteventscloud.com/connect/sessionDetail.ww?SESSION_ID="
 const adskLoginUrl = "https://accounts.autodesk.com/logon#username";
 
@@ -13,7 +13,10 @@ const addClassSelector = "#sessionSchedule > ul > li > a.imageAdd";
 const fullSelector = "#sessionSchedule > ul > li > a.imageAddDisabled";
 const addWaitingListSelector = "#sessionSchedule > ul > li > a.imageAddWaiting";
 const conflictSelector = "#sessionSchedule > ul > li > a.conflict";
-const scheduledClassSeletor = "#sessionSchedule > ul > li > a.sessionScheduling";
+const scheduledClassSeletor = "#sessionSchedule > ul > li > a.sessionScheduling.imageRemove";
+
+
+
 
 const classTitleHeaderSelector = "#leftCol > div.detailHeader >h1.detail";
 
@@ -99,10 +102,9 @@ async function getBookMarkedClassIds(page) {
     await adskLogin(page);
 
     //Read Bookmarked Classes
-    //var classSessionIds = await readJSONFile(classeFileName);
-    console.log("Reading bookmarked classes..");
+    console.log("Reading bookmarked classes");
     var classSessionIds = await getBookMarkedClassIds(page);
-    console.log(classSessionIds.length, " bookmarks found!");
+    console.log(classSessionIds.length + " bookmarked classes found");
 
     //loop over class session
     for (var i = 0; i < classSessionIds.length; i++) {
@@ -113,38 +115,43 @@ async function getBookMarkedClassIds(page) {
         //Open class page
         await page.goto(classUrl);
 
+
+
+
         //read and log title and url
         const title = await page.$eval(classTitleHeaderSelector, el => el.innerText);
-        console.log(title);
-        console.log("\tURL: ", classUrl.cyan);
 
         //Check status
-
-
-
-
+        await page.waitForSelector("#sessionSchedule", { visible: true });
         var isScheduled = (await page.$(scheduledClassSeletor) !== null);
         var canAdd = (await page.$(addClassSelector) !== null);
         var canAddWaitlist = (await page.$(addWaitingListSelector) !== null);
-        var isFull = (await page.$(fullSelector) !== null);
+        //var isFull = (await page.$(fullSelector) !== null);
 
-
-        //print status
         if (!isScheduled) {
 
-            if (canAdd) console.log("\tClass: Open".cyan);
-            else console.log("\tClass: Full".red);
+            //Seperator line
+            console.log();
 
-            if (canAddWaitlist) console.log("\tWaitlist: Open".yellow);
-            else console.log("\tWaitlist: Full".red);
+            //print status
+            console.log(title);
+            console.log("\tURL: ", classUrl.cyan);
+
+            if (canAdd) console.log("\tClass: Open".green);
+            else {
+                console.log("\tClass: Full".red);
+                if (canAddWaitlist) console.log("\tWaitlist: Open".yellow);
+                else console.log("\tWaitlist: Full".red);
+            }
 
             var conflicts = (await page.$(conflictSelector) !== null);
             if ((canAdd | canAddWaitlist) & conflicts) console.log("\tConflicts: Yes".red);
+
+
         }
 
 
-        //Seperator line
-        console.log();
+
     }
 
     await browser.close();
