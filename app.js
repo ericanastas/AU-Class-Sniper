@@ -45,13 +45,16 @@ async function adskLogin(page) {
     await page.goto(adskLoginUrl);
 
     console.log("Entering username: " + creds.userName);
+    await page.waitForSelector("#userName", { visible: true });
     await page.type("#userName", creds.userName);
     await page.click("#verify_user_btn");
 
     console.log("Entering password");
-    await page.waitFor("#password", { visible: true });
+    await page.waitForSelector("#password", { visible: true });
     await page.type("#password", creds.password);
     await page.click("#btnSubmit");
+
+
 
     console.log("Waiting for Autodesk profile page");
     await page.waitForSelector("#profile_picture_div"); //wait for the autodesk profile page
