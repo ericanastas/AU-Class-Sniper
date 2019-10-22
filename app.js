@@ -50,7 +50,7 @@ async function adskLogin(page) {
     await page.waitFor("#password", { visible: true });
     await page.type("#password", creds.password);
     await page.click("#btnSubmit");
-    await page.waitForNavigation();
+    await page.waitForSelector("#profile_picture_div"); //wait for the autodesk profile page
 }
 
 
