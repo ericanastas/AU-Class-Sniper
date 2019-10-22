@@ -6,7 +6,7 @@ var colors = require('colors');
 const credFileName = "creds.json";
 
 const classRootUrl = "https://autodeskuniversity.smarteventscloud.com/connect/sessionDetail.ww?SESSION_ID="
-const adskLoginUrl = "https://accounts.autodesk.com/logon#username";
+
 
 //Selectors
 const addClassSelector = "#sessionSchedule > ul > li > a.imageAdd";
@@ -38,6 +38,8 @@ async function readJSONFile(path) {
 
 //Login to autodesk acount
 async function adskLogin(page) {
+
+    const adskLoginUrl = "https://accounts.autodesk.com/logon#username";
 
     var creds = await readJSONFile(credFileName);
     await page.goto(adskLoginUrl);
