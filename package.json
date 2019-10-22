@@ -4,6 +4,7 @@
   "description": "Automatically checks availablity of autodesk university classes",
   "main": "app.js",
   "dependencies": {
+    "colors": "^1.4.0",
     "puppeteer": "^1.20.0"
   },
   "devDependencies": {},

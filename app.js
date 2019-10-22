@@ -1,5 +1,7 @@
 const puppeteer = require('puppeteer');
 var fs = require('fs');
+var colors = require('colors');
+
 
 const credFileName = "creds.json";
 const classeFileName = "classes.json";
@@ -11,7 +13,12 @@ const addClassSelector = "#sessionSchedule > ul > li > a.imageAdd";
 const fullSelector = "#sessionSchedule > ul > li > a.imageAddDisabled";
 const addWaitingListSelector = "#sessionSchedule > ul > li > a.imageAddWaiting";
 const conflictSelector = "#sessionSchedule > ul > li > a.conflict";
+const scheduledClassSeletor = "#sessionSchedule > ul > li > a.sessionScheduling";
+
 const classTitleHeaderSelector = "#leftCol > div.detailHeader >h1.detail";
+
+
+
 
 
 async function readJSONFile(path) {
@@ -76,6 +83,7 @@ async function getBookMarkedClassIds(page) {
 (async function main() {
 
 
+
     //Start Puppeteer browser
     console.log("Starting Puppeteer Chrome Browser");
     const browser = await puppeteer.launch({
@@ -108,22 +116,36 @@ async function getBookMarkedClassIds(page) {
         //read and log title and url
         const title = await page.$eval(classTitleHeaderSelector, el => el.innerText);
         console.log(title);
-        console.log("\tURL: ", classUrl);
+        console.log("\tURL: ", classUrl.cyan);
 
         //Check status
+
+
+
+
+        var isScheduled = (await page.$(scheduledClassSeletor) !== null);
         var canAdd = (await page.$(addClassSelector) !== null);
         var canAddWaitlist = (await page.$(addWaitingListSelector) !== null);
         var isFull = (await page.$(fullSelector) !== null);
 
+
         //print status
-        if (canAdd) console.log("\tClass: Open");
-        else console.log("\tClass: Full");
+        if (isScheduled) {
+            console.log("\tClass Scheduled: Yes".green);
+        }
+        else {
+            console.log("\tClass Scheduled: No".red);
 
-        if (canAddWaitlist) console.log("\tWaitlist: Open");
-        else console.log("\tWaitlist: Full");
+            if (canAdd) console.log("\tClass: Open".cyan);
+            else console.log("\tClass: Full".red);
 
-        var conflicts = (await page.$(conflictSelector) !== null);
-        if ((canAdd | canAddWaitlist) & conflicts) console.log("\tConflicts: Yes");
+            if (canAddWaitlist) console.log("\tWaitlist: Open".yellow);
+            else console.log("\tWaitlist: Full".red);
+
+            var conflicts = (await page.$(conflictSelector) !== null);
+            if ((canAdd | canAddWaitlist) & conflicts) console.log("\tConflicts: Yes".red);
+        }
+
 
         //Seperator line
         console.log();
