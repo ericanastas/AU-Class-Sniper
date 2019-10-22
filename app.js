@@ -1,7 +1,6 @@
 const puppeteer = require('puppeteer');
 var fs = require('fs');
 
-
 const credFileName = "creds.json";
 const classeFileName = "classes.json";
 const classRootUrl = "https://autodeskuniversity.smarteventscloud.com/connect/sessionDetail.ww?SESSION_ID="
@@ -13,7 +12,6 @@ const fullSelector = "#sessionSchedule > ul > li > a.imageAddDisabled";
 const addWaitingListSelector = "#sessionSchedule > ul > li > a.imageAddWaiting";
 const conflictSelector = "#sessionSchedule > ul > li > a.conflict";
 const classTitleHeaderSelector = "#leftCol > div.detailHeader >h1.detail";
-
 
 
 async function readJSONFile(path) {
@@ -35,15 +33,10 @@ async function readJSONFile(path) {
 //Login to autodesk acount
 async function adskLogin(page) {
 
-
     var creds = await readJSONFile(credFileName);
-    console.log("Logging in");
     await page.goto(adskLoginUrl);
-
-
     await page.type("#userName", creds.userName);
     await page.click("#verify_user_btn");
-
     await page.waitFor("#password", { visible: true });
     await page.type("#password", creds.password);
     await page.click("#btnSubmit");
@@ -51,13 +44,40 @@ async function adskLogin(page) {
 }
 
 
+async function getBookMarkedClassIds(page) {
+
+    const bookMarksUrl = "https://autodeskuniversity.smarteventscloud.com/connect/interests.ww"
+    await page.goto(bookMarksUrl);
+    await page.waitForNavigation();
+    const s1 = "div.sessionRow >div.detailColumn > a.openInPopup"
+    await page.waitForSelector("#sessionsTab", { visible: true });
+    await page.waitForSelector(s1, { visible: true });
+
+
+
+    const classIds = await page.$$eval(s1, anchors => {
+
+        var vals = anchors.map(a => {
+
+            var href = a.getAttribute("href");
+            var startIndex = 12 + href.lastIndexOf("?");
+            var classIdStr = href.substring(startIndex);
+            var classId = Number.parseInt(classIdStr);
+            return classId;
+        });
+
+        return vals;
+    });
+
+    return classIds;
+}
+
+
 (async function main() {
 
 
-    //Read classes
-    var classSessionIds = await readJSONFile(classeFileName);
-
     //Start Puppeteer browser
+    console.log("Starting Puppeteer Chrome Browser");
     const browser = await puppeteer.launch({
         defaultViewport: null,
         headless: false, // launch headful mode
@@ -67,9 +87,16 @@ async function adskLogin(page) {
     const page = await browser.newPage();
 
     //Login
+    console.log("Logging into Autodesk");
     await adskLogin(page);
 
-    //loop over class session dis
+    //Read Bookmarked Classes
+    //var classSessionIds = await readJSONFile(classeFileName);
+    console.log("Reading bookmarked classes..");
+    var classSessionIds = await getBookMarkedClassIds(page);
+    console.log(classSessionIds.length, " bookmarks found!");
+
+    //loop over class session
     for (var i = 0; i < classSessionIds.length; i++) {
         let sessionId = classSessionIds[i];
 
@@ -82,7 +109,6 @@ async function adskLogin(page) {
         const title = await page.$eval(classTitleHeaderSelector, el => el.innerText);
         console.log(title);
         console.log("\tURL: ", classUrl);
-
 
         //Check status
         var canAdd = (await page.$(addClassSelector) !== null);
@@ -97,12 +123,10 @@ async function adskLogin(page) {
         else console.log("\tWaitlist: Full");
 
         var conflicts = (await page.$(conflictSelector) !== null);
-        if ((canAdd | canAddWaitlist) & conflicts) Console.log("\tConflicts: yes");
-
+        if ((canAdd | canAddWaitlist) & conflicts) console.log("\tConflicts: Yes");
 
         //Seperator line
         console.log();
-
     }
 
     await browser.close();
