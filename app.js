@@ -130,11 +130,7 @@ async function getBookMarkedClassIds(page) {
 
 
         //print status
-        if (isScheduled) {
-            console.log("\tClass Scheduled: Yes".green);
-        }
-        else {
-            console.log("\tClass Scheduled: No".red);
+        if (!isScheduled) {
 
             if (canAdd) console.log("\tClass: Open".cyan);
             else console.log("\tClass: Full".red);
