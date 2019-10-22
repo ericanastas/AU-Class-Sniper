@@ -2,13 +2,17 @@
 
 Tool for getting the AU classes you want
 
-1. Install [NodeJS](https://nodejs.org/en/)
-2. Run `npm install` to install dependencies (puppeteer).
-3. Edit `creds.json` with your actual Autodesk credentials.
-4. Run `node app.js`
-5. The current status of the classes you have bookmarked, but have not scheduled, will be displayed in the console.
 
-# Example Outpt
+## Usage
+
+1. Install [NodeJS](https://nodejs.org/en/)
+2. Creatd a local copy of the repository.
+3. Run `npm install` to install dependencies.
+4. Edit `creds.json` with your actual Autodesk credentials.
+5. Run `node app.js`
+6. The current status of the classes you have bookmarked, but have not scheduled, will be logged in the console.
+
+## Example Output
 
 ```
 PS C:\Git\AUClassSniper> node app.js
