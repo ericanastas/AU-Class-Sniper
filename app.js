@@ -85,7 +85,7 @@ async function getBookMarkedClassIds(page) {
 
 (async function main() {
 
-
+    try {
 
     //Start Puppeteer browser
     console.log("Starting Puppeteer Chrome Browser");
@@ -155,5 +155,12 @@ async function getBookMarkedClassIds(page) {
     }
 
     await browser.close();
+
+    }
+    catch (err) {
+        console.log("Exception.Name: " + err.name.red);
+        console.log("Exception.Message: " + err.message.red);
+        console.log("Exception Details: " + err);
+    }
 
 })();
