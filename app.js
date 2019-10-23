@@ -56,14 +56,14 @@ async function adskLogin(page) {
     //Setup request interception
     var redirectedToADFS = false;
 
-    //page.setRequestInterception(true);
+    const requestLogPath = "requestLog.txt";
+    if (fs.existsSync(requestLogPath)) fs.unlinkSync(requestLogPath);
 
     var adfsDetectionHandler = (req) => {
-        console.log(req._url);
-        //req.continue();
 
-        //set redirectedToADFS here
-    }
+        let url = req._url;
+        fs.appendFileSync(requestLogPath, url + "\n");
+    };
 
 
     await page.on('request', adfsDetectionHandler);
