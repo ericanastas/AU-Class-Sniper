@@ -39,7 +39,6 @@ async function readJSONFile(path) {
 //Login to autodesk acount
 async function adskLogin(page) {
 
-
     const adskLoginUrl = "https://accounts.autodesk.com/logon";
     const creds = await readJSONFile(credFileName);
 
@@ -53,18 +52,16 @@ async function adskLogin(page) {
 
 
 
-    //Setup request interception
+    //Setup request interception and logging
     var redirectedToADFS = false;
 
     const requestLogPath = "requestLog.txt";
     if (fs.existsSync(requestLogPath)) fs.unlinkSync(requestLogPath);
-
     var adfsDetectionHandler = (req) => {
-
-        let url = req._url;
-        fs.appendFileSync(requestLogPath, url + "\n");
+        if (req._url === "https://adfs.som.com/adfs/ls/") redirectedToADFS = true;
+        //let url = req._url;
+        //fs.appendFileSync(requestLogPath, url + "\n");
     };
-
 
     await page.on('request', adfsDetectionHandler);
 
@@ -72,19 +69,14 @@ async function adskLogin(page) {
     //click next button
     await page.click("#verify_user_btn");
 
-
-
-
-
     if (redirectedToADFS) {
         console.log("ADFS Login detected");
     }
     else {
-        console.log("Entering autodesk password");
+        console.log("Autodesk Login detected");
 
+        console.log("Entering password");
         const passwordSelctor = "#password";
-
-        //default autodesk login
 
         await page.waitForSelector(passwordSelctor, { visible: true });
         await page.type(passwordSelctor, creds.password);
