@@ -53,12 +53,16 @@ async function adskLogin(page) {
 
 
     //Setup request interception and logging
-    var redirectedToADFS = false;
+    let redirectedToADFS = false;
 
-    const requestLogPath = "requestLog.txt";
-    if (fs.existsSync(requestLogPath)) fs.unlinkSync(requestLogPath);
+    //const requestLogPath = "requestLog.txt";
+    //if (fs.existsSync(requestLogPath)) fs.unlinkSync(requestLogPath);
     var adfsDetectionHandler = (req) => {
-        if (req._url === "https://adfs.som.com/adfs/ls/") redirectedToADFS = true;
+
+
+        const adfsURL = "https://adfs.som.com/adfs/ls/";
+
+        if (req._url.startswith(adskLoginUrl)) redirectedToADFS = true;
         //let url = req._url;
         //fs.appendFileSync(requestLogPath, url + "\n");
     };
