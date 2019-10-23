@@ -107,7 +107,6 @@ async function getBookMarkedClassIds(page) {
 
     const bookMarksUrl = "https://autodeskuniversity.smarteventscloud.com/connect/interests.ww"
     await page.goto(bookMarksUrl);
-    await page.waitForNavigation();
     const s1 = "div.sessionRow >div.detailColumn > a.openInPopup"
     await page.waitForSelector("#sessionsTab", { visible: true });
     await page.waitForSelector(s1, { visible: true });
