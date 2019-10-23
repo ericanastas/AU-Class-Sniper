@@ -58,16 +58,13 @@ async function adskLogin(page) {
     //const requestLogPath = "requestLog.txt";
     //if (fs.existsSync(requestLogPath)) fs.unlinkSync(requestLogPath);
     var adfsDetectionHandler = (req) => {
-
         const adfsURL = "https://adfs.som.com";
 
-        if (req._url.startswith(adskLoginUrl)) {
+        if (req._url.startsWith(adfsURL)) {
 
             console.log("SOM ADFS Login detected:" + req._url);
             redirectedToADFS = true;
         }
-        //let url = req._url;
-        //fs.appendFileSync(requestLogPath, url + "\n");
     };
 
     await page.on('request', adfsDetectionHandler);
@@ -90,7 +87,7 @@ async function adskLogin(page) {
 
             console.log("Entering password");
             await page.type(passwordSelector, creds.password);
-        await page.click("#btnSubmit");
+            await page.click("#btnSubmit");
         } catch (err) {
             console.log(err.message);
         }
