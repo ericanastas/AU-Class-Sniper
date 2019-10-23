@@ -10,10 +10,10 @@ const classRootUrl = "https://autodeskuniversity.smarteventscloud.com/connect/se
 
 //Selectors
 const addClassSelector = "#sessionSchedule > ul > li > a.imageAdd";
-const fullSelector = "#sessionSchedule > ul > li > a.imageAddDisabled";
+const removeClassSelector = "#sessionSchedule > ul > li > a.sessionScheduling.imageRemove";
 const addWaitingListSelector = "#sessionSchedule > ul > li > a.imageAddWaiting";
+const removeWaitingListSelector = "#sessionSchedule > ul > li > a.imageRemoveWaiting ";
 const conflictSelector = "#sessionSchedule > ul > li > a.conflict";
-const scheduledClassSeletor = "#sessionSchedule > ul > li > a.sessionScheduling.imageRemove";
 const classTitleHeaderSelector = "#leftCol > div.detailHeader >h1.detail";
 
 
@@ -174,12 +174,15 @@ async function getBookMarkedClassIds(page) {
 
             //Check status
             await page.waitForSelector("#sessionSchedule", { visible: true });
-            var isScheduled = (await page.$(scheduledClassSeletor) !== null);
+            var isScheduled = (await page.$(removeClassSelector) !== null);
+            var isWaitListed = (await page.$(removeWaitingListSelector) !== null);
             var canAdd = (await page.$(addClassSelector) !== null);
             var canAddWaitlist = (await page.$(addWaitingListSelector) !== null);
+
+
             //var isFull = (await page.$(fullSelector) !== null);
 
-            if (!isScheduled) {
+            if (!isScheduled & !isWaitListed) {
                 //Seperator line
                 console.log();
 
@@ -196,9 +199,8 @@ async function getBookMarkedClassIds(page) {
 
                 var conflicts = (await page.$(conflictSelector) !== null);
                 if ((canAdd | canAddWaitlist) & conflicts) console.log("\tConflicts: Yes".red);
-
-
             }
+
 
 
 
