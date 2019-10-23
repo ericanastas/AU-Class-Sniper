@@ -39,25 +39,65 @@ async function readJSONFile(path) {
 //Login to autodesk acount
 async function adskLogin(page) {
 
-    const adskLoginUrl = "https://accounts.autodesk.com/logon#username";
 
-    var creds = await readJSONFile(credFileName);
-    await page.goto(adskLoginUrl);
+    const adskLoginUrl = "https://accounts.autodesk.com/logon";
+    const creds = await readJSONFile(credFileName);
+
+
+    console.log("Opening:" + adskLoginUrl);
+    const response = await page.goto(adskLoginUrl);
 
     console.log("Entering username: " + creds.userName);
     await page.waitForSelector("#userName", { visible: true });
     await page.type("#userName", creds.userName);
+
+
+
+    //Setup request interception
+    var redirectedToADFS = false;
+
+    //page.setRequestInterception(true);
+
+    var adfsDetectionHandler = (req) => {
+        console.log(req._url);
+        //req.continue();
+
+        //set redirectedToADFS here
+    }
+
+
+    await page.on('request', adfsDetectionHandler);
+
+
+    //click next button
     await page.click("#verify_user_btn");
 
-    console.log("Entering password");
-    await page.waitForSelector("#password", { visible: true });
-    await page.type("#password", creds.password);
-    await page.click("#btnSubmit");
 
 
+
+
+    if (redirectedToADFS) {
+        console.log("ADFS Login detected");
+    }
+    else {
+        console.log("Entering autodesk password");
+
+        const passwordSelctor = "#password";
+
+        //default autodesk login
+
+        await page.waitForSelector(passwordSelctor, { visible: true });
+        await page.type(passwordSelctor, creds.password);
+        await page.click("#btnSubmit");
+    }
 
     console.log("Waiting for Autodesk profile page");
     await page.waitForSelector("#profile_picture_div"); //wait for the autodesk profile page
+
+    //
+    await page.removeListener('request', adfsDetectionHandler);
+
+
 }
 
 
@@ -92,6 +132,9 @@ async function getBookMarkedClassIds(page) {
 
 (async function main() {
 
+
+
+
     try {
 
         //Start Puppeteer browser
@@ -103,6 +146,9 @@ async function getBookMarkedClassIds(page) {
             //slowMo: 250, // slow down puppeteer script so that it's easier to follow visually
         });
         const page = await browser.newPage();
+
+
+
 
         //Login
         console.log("Logging into Autodesk");
