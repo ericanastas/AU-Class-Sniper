@@ -82,12 +82,18 @@ async function adskLogin(page) {
     else {
         console.log("Autodesk Login detected");
 
-        console.log("Entering password");
-        const passwordSelctor = "#password";
+        const passwordSelector = "#password";
+        console.log("Waiting for password page");
 
-        await page.waitForSelector(passwordSelctor, { visible: true });
-        await page.type(passwordSelctor, creds.password);
+        try {
+            await page.waitForSelector(passwordSelector, { visible: true, timeout: 10000 });
+
+            console.log("Entering password");
+            await page.type(passwordSelector, creds.password);
         await page.click("#btnSubmit");
+        } catch (err) {
+            console.log(err.message);
+        }
     }
 
     console.log("Waiting for Autodesk profile page");
