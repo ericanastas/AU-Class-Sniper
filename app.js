@@ -59,10 +59,13 @@ async function adskLogin(page) {
     //if (fs.existsSync(requestLogPath)) fs.unlinkSync(requestLogPath);
     var adfsDetectionHandler = (req) => {
 
+        const adfsURL = "https://adfs.som.com";
 
-        const adfsURL = "https://adfs.som.com/adfs/ls/";
+        if (req._url.startswith(adskLoginUrl)) {
 
-        if (req._url.startswith(adskLoginUrl)) redirectedToADFS = true;
+            console.log("SOM ADFS Login detected:" + req._url);
+            redirectedToADFS = true;
+        }
         //let url = req._url;
         //fs.appendFileSync(requestLogPath, url + "\n");
     };
